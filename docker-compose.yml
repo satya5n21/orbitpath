@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: orbitpath-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-orbitpath_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-orbitpath}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - orbitpath_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-orbitpath_dev} -d ${POSTGRES_DB:-orbitpath}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  orbitpath_pgdata:

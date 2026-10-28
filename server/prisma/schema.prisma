@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GuestSession {
+  id          String              @id
+  createdAt   DateTime            @default(now())
+  lastSeenAt  DateTime            @updatedAt
+  roadmaps    Roadmap[]
+  achievements Achievement[]
+  aiUsages    AiGenerationUsage[]
+}
+
+model Roadmap {
+  id                   String       @id @default(uuid())
+  sessionId            String
+  session              GuestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  title                String
+  goalSummary          String
+  strategyType         String
+  strategyName         String
+  description          String
+  intendedProfile      String
+  expectedOutcome      String
+  estimatedTotalEffort String
+  tradeOffs            String
+  assumptions          Json
+  archived             Boolean      @default(false)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  completedAt          DateTime?
+  milestones           Milestone[]
+  achievement          Achievement?
+
+  @@index([sessionId, archived, createdAt])
+}
+
+model Milestone {
+  id                     String    @id @default(uuid())
+  roadmapId              String
+  roadmap                Roadmap   @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  position               Int
+  title                  String
+  shortDescription       String
+  actionableInstructions String
+  completionCriterion    String
+  estimatedEffort        String
+  iconCategory           String
+  resourceSuggestions    Json
+  completedAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@unique([roadmapId, position])
+  @@index([roadmapId, position])
+}
+
+model Achievement {
+  id                 String       @id @default(uuid())
+  sessionId          String
+  session            GuestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  roadmapId          String       @unique
+  roadmap            Roadmap      @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  title              String
+  badgeLabel         String
+  constellationTheme String
+  featured           Boolean      @default(false)
+  earnedAt           DateTime     @default(now())
+
+  @@index([sessionId, featured])
+}
+
+model AiGenerationUsage {
+  id         String       @id @default(uuid())
+  sessionId  String
+  session    GuestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  goalHash   String
+  provider   String
+  succeeded  Boolean
+  createdAt  DateTime     @default(now())
+
+  @@index([sessionId, succeeded, createdAt])
+}

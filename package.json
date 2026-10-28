@@ -1,0 +1,27 @@
+{
+  "name": "orbitpath-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n SHARED,SERVER,CLIENT -c cyan,magenta,blue \"npm run dev -w @orbitpath/shared\" \"npm run dev -w @orbitpath/server\" \"npm run dev -w @orbitpath/client\"",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run prisma:migrate -w @orbitpath/server",
+    "db:generate": "npm run prisma:generate -w @orbitpath/server",
+    "build": "npm run build -w @orbitpath/shared && npm run build -w @orbitpath/server && npm run build -w @orbitpath/client",
+    "typecheck": "npm run typecheck -w @orbitpath/shared && npm run typecheck -w @orbitpath/server && npm run typecheck -w @orbitpath/client",
+    "test": "npm run test -w @orbitpath/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
